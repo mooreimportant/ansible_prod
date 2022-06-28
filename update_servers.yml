@@ -1,0 +1,23 @@
+---
+- name: Update Ubuntu Servers
+  hosts: servers
+  become: true
+  tasks:
+    - name: Check updates
+      command: apt update
+
+    - name: Complete upgrades
+      apt:
+        update_cache: true
+        upgrade: dist
+        cache_valid_time: 3600
+        force_apt_get: true
+
+    - name: Check Restart Status
+      command: cat /var/run/reboot-required
+      register: restart_status
+
+    - name: Reboot system to complete upgrade 
+      command: reboot
+      when: restart_status.stdout.find('restart') != -1
+      
